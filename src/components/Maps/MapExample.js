@@ -1,73 +1,50 @@
 import React, { useEffect, useRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 function MapExample() {
   const mapRef = useRef(null);
 
+  // sample locations with lat, lng, and name for each location
+  const locations = [
+    { lat: 6.9271, lng: 79.8612, name: "Station 1" },
+    { lat: 6.9275, lng: 79.8605, name: "Station 2" },
+    { lat: 6.9280, lng: 79.8610, name: "Station 3" },
+    { lat: 6.9285, lng: 79.8600, name: "Station 4" },
+    { lat: 6.9290, lng: 79.8595, name: "Station 5" },
+    { lat: 6.9300, lng: 79.8585, name: "Station 6" },
+    { lat: 6.9310, lng: 79.8575, name: "Station 7" },
+    { lat: 6.9320, lng: 79.8565, name: "Station 8" },
+    { lat: 6.9330, lng: 79.8555, name: "Station 9" },
+    { lat: 6.9340, lng: 79.8545, name: "Station 10" }
+  ];
+
   useEffect(() => {
-    const loadGoogleMaps = () => {
-      if (!window.google) {
-        console.error("google maps script not loaded");
-        return;
-      }
+    if (mapRef.current) {
+      const lat = 6.9271; // colombo latitude
+      const lng = 79.8612; // colombo longitude
 
-      const lat = 40.748817;
-      const lng = -73.985428;
-      const myLatlng = new window.google.maps.LatLng(lat, lng);
+      const map = L.map(mapRef.current).setView([lat, lng], 12);
 
-      const mapOptions = {
-        zoom: 12,
-        center: myLatlng,
-        scrollwheel: false,
-        zoomControl: true,
-        styles: [
-          {
-            featureType: "administrative",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#444444" }],
-          },
-          {
-            featureType: "landscape",
-            elementType: "all",
-            stylers: [{ color: "#f2f2f2" }],
-          },
-          {
-            featureType: "water",
-            elementType: "all",
-            stylers: [{ color: "#4299e1" }, { visibility: "on" }],
-          },
-        ],
-      };
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
 
-      const map = new window.google.maps.Map(mapRef.current, mapOptions);
-
-      const marker = new window.google.maps.Marker({
-        position: myLatlng,
-        map: map,
-        animation: window.google.maps.Animation.DROP,
-        title: "notus react!",
+      const customIcon = L.icon({
+        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
       });
 
-      const infowindow = new window.google.maps.InfoWindow({
-        content: `<div class="info-window-content">
-            <h2>Notus React</h2>
-            <p>A free admin for tailwind css, react, and react hooks.</p>
-          </div>`,
+      // loop through locations and add markers
+      locations.forEach((location) => {
+        L.marker([location.lat, location.lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`<b>${location.name}</b>`); // show location name on popup
       });
-
-      marker.addListener("click", () => {
-        infowindow.open(map, marker);
-      });
-    };
-
-    if (!window.google) {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=your_google_maps_api_key`;
-      script.async = true;
-      script.defer = true;
-      script.onload = loadGoogleMaps;
-      document.body.appendChild(script);
-    } else {
-      loadGoogleMaps();
     }
   }, []);
 

@@ -13,6 +13,7 @@
     "chart.js": "2.9.4",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.8",
+    "leaflet": "^1.9.4",
     "postcss": "8.4.39",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -46,5 +47,8 @@
   },
   "optionalDependencies": {
     "typescript": "4.2.3"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }
