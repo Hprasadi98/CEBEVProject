@@ -3,11 +3,12 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 import "leaflet-fullscreen";
+import "leaflet-routing-machine";
 
 function MapExample() {
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
+  const [routingControl, setRoutingControl] = useState(null);
 
   const locations = [
     { lat: 6.9271, lng: 79.8612, name: "Charging Station 1", status: "available" },
@@ -36,8 +37,6 @@ function MapExample() {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(newMap);
-
-    setMap(newMap);
 
     const iconStatus = {
       available: new L.Icon({
@@ -72,6 +71,8 @@ function MapExample() {
         .addTo(newMap)
         .bindPopup(`<b>${location.name}</b><br>Status: ${location.status}`);
     });
+
+    setMap(newMap);
   }, [map]);
 
   useEffect(() => {
@@ -84,41 +85,37 @@ function MapExample() {
       popupAnchor: [0, -35],
     });
 
-    let userMarker = null;
-    let userCircle = null;
-    let firstUpdate = true;
-
     if (navigator.geolocation) {
       navigator.geolocation.watchPosition(
         (position) => {
           const userLat = position.coords.latitude;
           const userLng = position.coords.longitude;
-          const accuracy = position.coords.accuracy;
 
-          setUserLocation([userLat, userLng]);
+          L.marker([userLat, userLng], { icon: carIcon })
+            .addTo(map)
+            .bindPopup("<b>Your Car</b>")
+            .openPopup();
 
-          if (userMarker) {
-            userMarker.setLatLng([userLat, userLng]);
-            userCircle.setLatLng([userLat, userLng]).setRadius(accuracy);
-          } else {
-            userMarker = L.marker([userLat, userLng], { icon: carIcon })
-              .addTo(map)
-              .bindPopup(`<b>Your Car</b>`)
-              .openPopup();
-
-            userCircle = L.circle([userLat, userLng], {
-              color: "blue",
-              fillColor: "#30f",
-              fillOpacity: 0.3,
-              radius: accuracy,
-            }).addTo(map);
+          if (routingControl) {
+            map.removeControl(routingControl);
           }
 
-          // Center the map **only the first time**
-          if (firstUpdate) {
-            map.setView([userLat, userLng], 14);
-            firstUpdate = false;
-          }
+          const nearestStation = locations.find((station) => station.status === "available");
+          if (!nearestStation) return;
+
+          const newRoutingControl = L.Routing.control({
+            waypoints: [L.latLng(userLat, userLng), L.latLng(nearestStation.lat, nearestStation.lng)],
+            routeWhileDragging: false,
+            createMarker: () => null, // removes markers for waypoints
+            show: false, // hides turn-by-turn directions
+            addWaypoints: false, // prevents additional waypoints
+            fitSelectedRoutes: true, // ensures the route fits the map view
+            lineOptions: {
+              styles: [{ color: "blue", weight: 5 }],
+            },
+          }).addTo(map);
+
+          setRoutingControl(newRoutingControl);
         },
         (error) => {
           console.error("Error getting user location:", error);
@@ -132,11 +129,7 @@ function MapExample() {
     }
   }, [map]);
 
-  return (
-    <div className="relative w-full h-[600px] rounded">
-      <div className="rounded h-full" ref={mapRef} style={{ height: "600px" }} />
-    </div>
-  );
+  return <div ref={mapRef} style={{ height: "600px", width: "100%" }} />;
 }
 
 export default MapExample;
