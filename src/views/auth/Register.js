@@ -14,6 +14,7 @@ export default function Register() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": "Basic " + btoa("user:admin123"),
         },
         body: JSON.stringify({
           name,
