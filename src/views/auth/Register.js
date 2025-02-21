@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
 export default function Register() {
@@ -7,14 +7,26 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const history = useHistory();
 
+  const validatePassword = (password) => {
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    return strongPasswordRegex.test(password);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validatePassword(password)) {
+      alert(
+        "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+      );
+      return;
+    }
     try {
       const response = await fetch("http://localhost:8081/api/v1/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Basic " + btoa("user:admin123"),
+          Authorization: "Basic " + btoa("user:admin123"),
         },
         body: JSON.stringify({
           name,
@@ -24,13 +36,16 @@ export default function Register() {
       });
 
       if (!response.ok) {
+        alert("Email Already Registered");
+        history.push("/auth/login");
         throw new Error("Registration failed");
       }
 
       const data = await response.json();
       console.log("Registration successful", data);
       // Handle successful registration (e.g., redirect to login page)
-      history.push("/auth");
+      alert("Registration successful");
+      history.push("/auth/login");
     } catch (error) {
       console.error("Registration failed", error);
       // Handle registration error
@@ -125,6 +140,13 @@ export default function Register() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
+                    {!validatePassword(password) && password.length > 0 && (
+                      <p className="text-red-500 text-xs mt-1">
+                        Password must be at least 6 characters, include one
+                        uppercase letter, one lowercase letter, one number, and
+                        one special character.
+                      </p>
+                    )}
                   </div>
 
                   <div>

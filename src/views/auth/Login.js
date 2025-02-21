@@ -7,7 +7,6 @@ export default function Login() {
   const history = useHistory();
 
   const handleSubmit = async (e) => {
-    console.log("click button")
     e.preventDefault();
     try {
       const response = await fetch("http://localhost:8081/api/v1/login", {
@@ -29,9 +28,11 @@ export default function Login() {
       if (response.ok) {
         // Handle successful login
         history.push("/landing");
+        alert("Login successful");
         console.log("Login successful", data);
       } else {
         // Handle login error
+        alert("If you have not account, register first. If you registered verify your email address. Otherwise check your email address and password");
         console.error("Login failed", data);
       }
     } catch (error) {
@@ -129,9 +130,6 @@ export default function Login() {
                     <button
                       className="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
                       type="submit"
-                      // onClick={
-                      //   console.log("click button")
-                      // }
                     >
                       Sign In
                     </button>
@@ -141,13 +139,9 @@ export default function Login() {
             </div>
             <div className="flex flex-wrap mt-6 relative">
               <div className="w-1/2">
-                <a
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                  className="text-blueGray-200"
-                >
+                <Link to="/auth/forgot" className="text-blueGray-200">
                   <small>Forgot password?</small>
-                </a>
+                </Link>
               </div>
               <div className="w-1/2 text-right">
                 <Link to="/auth/register" className="text-blueGray-200">
