@@ -5,6 +5,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [eAccountNo, seteAccountNo] = useState("");
   const history = useHistory();
 
   const validatePassword = (password) => {
@@ -31,6 +32,7 @@ export default function Register() {
         body: JSON.stringify({
           name,
           email,
+          eaccountNo: eAccountNo,
           password,
         }),
       });
@@ -124,6 +126,34 @@ export default function Register() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
+                  </div>
+
+                  <div className="relative w-full mb-3">
+                    <label
+                      className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                      htmlFor="grid-password"
+                    >
+                      Electricity Account Number
+                    </label>
+                    <input
+                      type="text"
+                      className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                      placeholder="Electricity Account Number"
+                      value={eAccountNo}
+                      maxLength={10}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^\d*$/.test(value)) { // Only allow digits (0-9)
+                          // console.log("Updated eAccountNo:", value); 
+                          seteAccountNo(value);
+                        }
+                      }}
+                    />
+                    {eAccountNo.length<10 && eAccountNo.length > 0 && (
+                      <p className="text-red-500 text-xs mt-1">
+                        10 digit account number required. eg:1234567890"
+                      </p>
+                    )}
                   </div>
 
                   <div className="relative w-full mb-3">

@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import { Link , useHistory} from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ export default function Login() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Basic " + btoa("user:admin123"),
+          Authorization: "Basic " + btoa("user:admin123"),
         },
         body: JSON.stringify({ email, password }),
       });
@@ -26,13 +26,23 @@ export default function Login() {
         data = await response.text();
       }
       if (response.ok) {
-        // Handle successful login
-        history.push("/landing");
+        // Extract user level from the response
+        const userlevel = data.userLevel; // Ensure the backend sends this value
+
+        if (userlevel === "CE") {
+          history.push("/admin/dashboardCE");
+        } else if (userlevel === "EE") {
+          history.push("/admin/dashboardEE");
+        } else {
+          history.push("/landing"); // Default page
+        }
         alert("Login successful");
         console.log("Login successful", data);
       } else {
         // Handle login error
-        alert("If you have not account, register first. If you registered verify your email address. Otherwise check your email address and password");
+        alert(
+          "If you have not account, register first. If you registered verify your email address. Otherwise check your email address and password"
+        );
         console.error("Login failed", data);
       }
     } catch (error) {
