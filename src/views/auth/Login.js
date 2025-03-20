@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import { Link , useHistory} from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -7,14 +7,13 @@ export default function Login() {
   const history = useHistory();
 
   const handleSubmit = async (e) => {
-    console.log("click button")
     e.preventDefault();
     try {
       const response = await fetch("http://localhost:8081/api/v1/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Basic " + btoa("user:admin123"),
+          Authorization: "Basic " + btoa("user:admin123"),
         },
         body: JSON.stringify({ email, password }),
       });
@@ -27,11 +26,23 @@ export default function Login() {
         data = await response.text();
       }
       if (response.ok) {
-        // Handle successful login
-        history.push("/landing");
+        // Extract user level from the response
+        const userlevel = data.userLevel; // Ensure the backend sends this value
+
+        if (userlevel === "CE") {
+          history.push("/admin/dashboardCE");
+        } else if (userlevel === "EE") {
+          history.push("/admin/dashboardEE");
+        } else {
+          history.push("/landing"); // Default page
+        }
+        alert("Login successful");
         console.log("Login successful", data);
       } else {
         // Handle login error
+        alert(
+          "If you have not account, register first. If you registered verify your email address. Otherwise check your email address and password"
+        );
         console.error("Login failed", data);
       }
     } catch (error) {
@@ -129,9 +140,6 @@ export default function Login() {
                     <button
                       className="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
                       type="submit"
-                      // onClick={
-                      //   console.log("click button")
-                      // }
                     >
                       Sign In
                     </button>
@@ -141,13 +149,9 @@ export default function Login() {
             </div>
             <div className="flex flex-wrap mt-6 relative">
               <div className="w-1/2">
-                <a
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                  className="text-blueGray-200"
-                >
+                <Link to="/auth/forgot" className="text-blueGray-200">
                   <small>Forgot password?</small>
-                </a>
+                </Link>
               </div>
               <div className="w-1/2 text-right">
                 <Link to="/auth/register" className="text-blueGray-200">
